@@ -1,0 +1,17 @@
+.env
+.git
+.gitignore
+.claude
+.codex
+.swiftpm-cache
+.clang-cache
+dist
+venv
+.venv
+__pycache__
+*.pyc
+macos
+script
+README.md
+CLAUDE.md
+AGENTS.md
