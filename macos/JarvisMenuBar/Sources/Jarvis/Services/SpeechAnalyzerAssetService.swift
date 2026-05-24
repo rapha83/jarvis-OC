@@ -8,6 +8,9 @@ enum SpeechAnalyzerAssetService {
             return SpeechAnalyzerAssetSummary(isAvailable: false, message: "SpeechAnalyzer requer macOS 26 ou superior")
         }
 
+#if JARVIS_DISABLE_SPEECH_ANALYZER
+        return SpeechAnalyzerAssetSummary(isAvailable: false, message: "SpeechAnalyzer desativado nesta build")
+#else
         let requestedLocale = Locale(identifier: localeID)
         let equivalentLocale = await SpeechTranscriber.supportedLocale(equivalentTo: requestedLocale)
         let locale = equivalentLocale ?? requestedLocale
@@ -61,6 +64,7 @@ enum SpeechAnalyzerAssetService {
                 message: "Asset SpeechAnalyzer em status desconhecido para \(selected): \(assetStatus)"
             )
         }
+#endif
     }
 
     static func install(localeID: String) async throws -> SpeechAnalyzerAssetSummary {
@@ -68,6 +72,9 @@ enum SpeechAnalyzerAssetService {
             throw SpeechAnalyzerAssetError.unavailable
         }
 
+#if JARVIS_DISABLE_SPEECH_ANALYZER
+        throw SpeechAnalyzerAssetError.unavailable
+#else
         let requestedLocale = Locale(identifier: localeID)
         let equivalentLocale = await SpeechTranscriber.supportedLocale(equivalentTo: requestedLocale)
         let locale = equivalentLocale ?? requestedLocale
@@ -92,6 +99,7 @@ enum SpeechAnalyzerAssetService {
             latest = await status(localeID: localeID)
         }
         return latest
+#endif
     }
 }
 

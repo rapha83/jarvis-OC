@@ -19,6 +19,10 @@ jobs:
 
       - name: Build Swift package
         run: |
+          # GitHub-hosted macOS runners can lag behind the newest SpeechAnalyzer SDK.
+          # Keep CI focused on the native app build and compile the experimental
+          # SpeechAnalyzer path out until the runner image exposes those APIs.
           SWIFTPM_CACHE_PATH=.swiftpm-cache \
           CLANG_MODULE_CACHE_PATH=.clang-cache \
-          swift build --package-path macos/JarvisMenuBar
+          swift build --package-path macos/JarvisMenuBar \
+            -Xswiftc -DJARVIS_DISABLE_SPEECH_ANALYZER
