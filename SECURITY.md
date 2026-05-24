@@ -16,10 +16,8 @@ Secrets must not be committed:
 - TLS private keys/certificates
 - exported diagnostics/log bundles
 
-The macOS app stores provider secrets in Keychain. The legacy Docker server reads secrets from environment variables.
+The macOS app stores provider secrets in Keychain and reads OpenClaw gateway credentials from the local OpenClaw configuration.
 
-## Legacy Server
+## Public Repository Scope
 
-The Python/Docker server is legacy and should be treated as a local-only service by default. Set a strong `JARVIS_CLIENT_TOKEN` before enabling `/api/*` or `/ws`, and keep loopback binding unless the iPad/Safari client is actively needed.
-
-The legacy WebSocket client sends its token as a query parameter during the WebSocket handshake. Do not expose this flow through public proxies, tunnels, shared logs or internet-facing endpoints.
+The public repository is scoped to the native macOS app. Local legacy web/Docker files, environment files, diagnostics exports, build products and private assistant configuration should remain untracked.

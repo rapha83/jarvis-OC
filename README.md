@@ -1,8 +1,8 @@
 # JARVIS Voice
 
-JARVIS Voice is a local-first macOS menu bar voice assistant for OpenClaw. The main experience runs natively on macOS: wake word, overlays, STT, TTS, diagnostics, hotkeys, screen/OCR context and OpenClaw streaming all happen in the Mac app. The older Python/Docker web server remains as a legacy iPad/Safari client.
+JARVIS Voice is a local-first macOS menu bar voice assistant for OpenClaw. Wake word, overlays, STT, TTS, diagnostics, hotkeys, screen/OCR context and OpenClaw streaming all run in the native Mac app.
 
-> Status: personal assistant project under active development. The macOS app is the primary runtime; the Docker server is legacy.
+> Status: personal assistant project under active development.
 
 ## Architecture
 
@@ -13,11 +13,6 @@ macOS menu bar app
   -> OpenClaw /v1/chat/completions streaming
   -> TTS: TTSKit helper, Azure Neural, custom command, or Apple Speech
   -> voice/text overlay, diagnostics, screen/OCR context
-
-iPad/Safari legacy client
-  -> HTTPS/WSS
-  -> server.py in Docker
-  -> faster-whisper + edge-tts + OpenClaw
 ```
 
 ## Requirements
@@ -25,7 +20,6 @@ iPad/Safari legacy client
 - macOS 15+ for the app bundle.
 - OpenClaw gateway running locally, usually at `http://127.0.0.1:18789`.
 - SwiftPM/Xcode command line tools for building the native app.
-- Docker only if you still want the legacy iPad/Safari web client.
 
 Optional native models can be placed under:
 
@@ -48,7 +42,7 @@ Or build and open:
 ./script/build_and_run.sh run
 ```
 
-The app reads the OpenClaw token from `~/.openclaw/openclaw.json`; it does not copy that token into JARVIS preferences. Azure Speech keys and the legacy Jarvis client token are stored in the macOS Keychain.
+The app reads the OpenClaw token from `~/.openclaw/openclaw.json`; it does not copy that token into JARVIS preferences. Azure Speech keys are stored in the macOS Keychain.
 
 ## macOS Features
 
@@ -76,7 +70,7 @@ Available wake-word engines:
 
 - `Apple Speech`: default.
 - `SpeechAnalyzer macOS 26`: experimental and currently falls back for continuous wake listening.
-- `Detector dedicado local`: legacy fallback.
+- `Detector dedicado local`: local fallback.
 - `Core ML Jarvis`: requires a trained `JarvisWakeWord.mlmodelc`.
 
 ## TTS
@@ -107,61 +101,7 @@ Logs live in:
 ~/Library/Logs/JARVIS/diagnostics.jsonl
 ```
 
-## Legacy iPad/Safari Server
-
-The legacy server is optional and is not used by the main macOS app flow.
-
-Create `.env` from `.env.example` and set a strong, private `JARVIS_CLIENT_TOKEN`:
-
-```bash
-cp .env.example .env
-```
-
-The Docker compose file binds the legacy server to `127.0.0.1:8765` on the host by default. Keep it local-only unless the iPad/Safari client is actively needed.
-
-If you intentionally access the legacy server from another device, first set a strong `JARVIS_CLIENT_TOKEN`, then change the compose port mapping to a LAN binding and set `JARVIS_CERT_CN` / `JARVIS_CERT_SAN` in `.env` to include the Mac hostname/IP used by that device.
-
-Then run:
-
-```bash
-docker-compose up -d --build
-```
-
-Protected legacy endpoints reject requests when `JARVIS_CLIENT_TOKEN` is empty. The web client stores the token in browser `localStorage` under `jarvis_client_token`.
-
-The legacy WebSocket client currently sends that token as a query parameter during the WebSocket handshake. Treat this flow as local-only: do not put it behind public proxies, shared logs, tunnels or an internet-facing endpoint.
-
-Useful commands:
-
-```bash
-docker-compose logs -f jarvis-voice
-docker-compose down
-docker-compose ps
-```
-
-## Environment
-
-| Variable | Required | Description |
-|---|---:|---|
-| `OPENCLAW_URL` | legacy | OpenClaw gateway for the Docker server. |
-| `OPENCLAW_CONFIG` | no | Optional OpenClaw config path mounted into Docker. |
-| `OPENCLAW_TOKEN` | legacy | OpenClaw bearer token for Docker mode. |
-| `OPENCLAW_AGENT` | no | Default legacy agent, default `it-infrastructure-specialist`. |
-| `JARVIS_CLIENT_TOKEN` | legacy yes | Required token for `/api/*` and `/ws` in legacy mode. |
-| `HOST_IP` | no | Bind address for direct `server.py` runs, default `127.0.0.1`. Docker sets this to `0.0.0.0` inside the container while the host port remains loopback-only by default. |
-| `JARVIS_CERT_CN` | no | Self-signed HTTPS certificate common name for Docker mode. |
-| `JARVIS_CERT_SAN` | no | Self-signed HTTPS certificate subjectAltName for Docker mode. |
-| `WHISPER_MODEL` | no | faster-whisper model for Docker mode. |
-| `TTS_VOICE` | no | edge-tts voice for Docker mode. |
-
 ## Development
-
-Validate syntax:
-
-```bash
-PYTHONPYCACHEPREFIX=/tmp/jarvis-pycache python3 -m py_compile server.py
-node -c static/app.js
-```
 
 Build SwiftPM:
 
@@ -181,12 +121,11 @@ Swift tests are not present yet. Recommended first tests:
 - `AgentSwitchCommand`
 - `NativeVoiceDirectiveParser`
 - `CommandPreflightFilter`
-- backend authorization rules
+- `NativeOpenClawClient`
 
 ## Known Limitations
 
 - SpeechAnalyzer is still experimental on macOS 26 and may fall back to Apple Speech.
 - Core ML wake word needs a trained model.
 - TTSKit model startup can be heavy; the helper runs as a resident process to keep it warm.
-- Docker/iPad mode requires HTTPS for Safari microphone access.
 - Unsigned local builds may require opening the app manually from Finder or `open dist/JARVIS.app`.

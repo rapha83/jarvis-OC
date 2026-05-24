@@ -1,11 +1,16 @@
 .env
 .env.*
-!.env.example
 .DS_Store
 .claude/
 .codex/
 docs/
 CLAUDE.md
+.dockerignore
+Dockerfile
+docker-compose.yml
+requirements.txt
+server.py
+static/
 *.bak
 *.log
 *.jsonl
