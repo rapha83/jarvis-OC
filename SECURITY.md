@@ -20,4 +20,6 @@ The macOS app stores provider secrets in Keychain. The legacy Docker server read
 
 ## Legacy Server
 
-The Python/Docker server is legacy and should be treated as a local-network service. Set `JARVIS_CLIENT_TOKEN` before enabling `/api/*` or `/ws`, and prefer loopback binding unless the iPad/Safari client is actively needed.
+The Python/Docker server is legacy and should be treated as a local-only service by default. Set a strong `JARVIS_CLIENT_TOKEN` before enabling `/api/*` or `/ws`, and keep loopback binding unless the iPad/Safari client is actively needed.
+
+The legacy WebSocket client sends its token as a query parameter during the WebSocket handshake. Do not expose this flow through public proxies, tunnels, shared logs or internet-facing endpoints.

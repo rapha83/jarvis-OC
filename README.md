@@ -97,9 +97,9 @@ JARVIS is local-first, but some configured providers can send data outside the m
 - OpenClaw receives the command text, short conversation history and optional OCR text.
 - Azure Neural receives text only when the Azure TTS provider is selected.
 - The app never sends screenshots directly to OpenClaw; OCR extracts text locally first.
-- Diagnostics can include command text, agent responses, app/window names and OCR snippets when detailed logging is enabled.
+- Diagnostics normally redact sensitive fields. When detailed logging is enabled, diagnostics can include command text, agent responses, app/window names and OCR snippets.
 
-Detailed logging is enabled by default for troubleshooting. In Preferences -> Diagnostics, turn off `Logging detalhado` before exporting or sharing logs publicly. When disabled, sensitive fields in JSONL diagnostics are redacted.
+Detailed logging is disabled by default. Enable `Logging detalhado` only while troubleshooting, and turn it off before exporting or sharing logs publicly.
 
 Logs live in:
 
@@ -111,13 +111,15 @@ Logs live in:
 
 The legacy server is optional and is not used by the main macOS app flow.
 
-Create `.env` from `.env.example` and set a strong `JARVIS_CLIENT_TOKEN`:
+Create `.env` from `.env.example` and set a strong, private `JARVIS_CLIENT_TOKEN`:
 
 ```bash
 cp .env.example .env
 ```
 
-If you access the legacy server from another device, set `JARVIS_CERT_CN` and `JARVIS_CERT_SAN` in `.env` to include the Mac hostname/IP used by that device.
+The Docker compose file binds the legacy server to `127.0.0.1:8765` on the host by default. Keep it local-only unless the iPad/Safari client is actively needed.
+
+If you intentionally access the legacy server from another device, first set a strong `JARVIS_CLIENT_TOKEN`, then change the compose port mapping to a LAN binding and set `JARVIS_CERT_CN` / `JARVIS_CERT_SAN` in `.env` to include the Mac hostname/IP used by that device.
 
 Then run:
 
@@ -126,6 +128,8 @@ docker-compose up -d --build
 ```
 
 Protected legacy endpoints reject requests when `JARVIS_CLIENT_TOKEN` is empty. The web client stores the token in browser `localStorage` under `jarvis_client_token`.
+
+The legacy WebSocket client currently sends that token as a query parameter during the WebSocket handshake. Treat this flow as local-only: do not put it behind public proxies, shared logs, tunnels or an internet-facing endpoint.
 
 Useful commands:
 
@@ -144,6 +148,7 @@ docker-compose ps
 | `OPENCLAW_TOKEN` | legacy | OpenClaw bearer token for Docker mode. |
 | `OPENCLAW_AGENT` | no | Default legacy agent, default `it-infrastructure-specialist`. |
 | `JARVIS_CLIENT_TOKEN` | legacy yes | Required token for `/api/*` and `/ws` in legacy mode. |
+| `HOST_IP` | no | Bind address for direct `server.py` runs, default `127.0.0.1`. Docker sets this to `0.0.0.0` inside the container while the host port remains loopback-only by default. |
 | `JARVIS_CERT_CN` | no | Self-signed HTTPS certificate common name for Docker mode. |
 | `JARVIS_CERT_SAN` | no | Self-signed HTTPS certificate subjectAltName for Docker mode. |
 | `WHISPER_MODEL` | no | faster-whisper model for Docker mode. |
@@ -177,15 +182,6 @@ Swift tests are not present yet. Recommended first tests:
 - `NativeVoiceDirectiveParser`
 - `CommandPreflightFilter`
 - backend authorization rules
-
-## Repository Hygiene
-
-Do not commit:
-
-- `.env`, tokens, certificates or private keys.
-- `dist/`, Swift build caches, Python caches.
-- local assistant config directories such as `.claude/` or `.codex/`.
-- generated logs or exported diagnostics.
 
 ## Known Limitations
 

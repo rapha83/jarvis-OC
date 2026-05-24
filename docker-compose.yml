@@ -8,7 +8,7 @@ services:
         CERT_SAN: ${JARVIS_CERT_SAN:-DNS:localhost,IP:127.0.0.1}
     container_name: jarvis-voice
     ports:
-       - "8765:8765"
+       - "127.0.0.1:8765:8765"
     extra_hosts:
        - "host.docker.internal:host-gateway"
     environment:
@@ -24,6 +24,7 @@ services:
        - WHISPER_INITIAL_PROMPT=${WHISPER_INITIAL_PROMPT:-}
        - STT_NORMALIZATION_ENABLED=${STT_NORMALIZATION_ENABLED:-true}
        - TTS_VOICE=${TTS_VOICE:-pt-BR-AntonioNeural}
+       - HOST_IP=0.0.0.0
        - HOST_PORT=8765
     restart: unless-stopped
     healthcheck:

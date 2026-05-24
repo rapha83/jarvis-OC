@@ -24,7 +24,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-HOST_IP = os.environ.get("HOST_IP", "0.0.0.0")
+HOST_IP = os.environ.get("HOST_IP", "127.0.0.1")
 HOST_PORT = int(os.environ.get("HOST_PORT", "8765"))
 WHISPER_MODEL = os.environ.get("WHISPER_MODEL", "small")
 WHISPER_BEAM_SIZE = int(os.environ.get("WHISPER_BEAM_SIZE", "3"))

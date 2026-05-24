@@ -3,6 +3,7 @@
 .gitignore
 .claude
 .codex
+docs
 .swiftpm-cache
 .clang-cache
 dist

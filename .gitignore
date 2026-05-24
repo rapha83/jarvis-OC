@@ -4,6 +4,7 @@
 .DS_Store
 .claude/
 .codex/
+docs/
 CLAUDE.md
 *.bak
 *.log

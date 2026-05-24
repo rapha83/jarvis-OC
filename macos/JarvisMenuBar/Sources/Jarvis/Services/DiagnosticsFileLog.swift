@@ -92,7 +92,7 @@ actor DiagnosticsFileLog {
     }
 
     static var isDetailedLoggingEnabled: Bool {
-        UserDefaults.standard.object(forKey: detailedLoggingKey) as? Bool ?? true
+        UserDefaults.standard.object(forKey: detailedLoggingKey) as? Bool ?? false
     }
 
     private nonisolated static func sanitize(_ fields: [String: String]) -> [String: String] {
