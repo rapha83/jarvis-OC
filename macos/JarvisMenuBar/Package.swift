@@ -11,7 +11,7 @@ let package = Package(
         .executable(name: "JarvisTTSHelper", targets: ["JarvisTTSHelper"])
     ],
     dependencies: [
-        .package(url: "https://github.com/argmaxinc/argmax-oss-swift.git", from: "0.18.0")
+        .package(url: "https://github.com/argmaxinc/argmax-oss-swift.git", from: "1.0.0")
     ],
     targets: [
         .executableTarget(
