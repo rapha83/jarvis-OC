@@ -30,6 +30,9 @@ final class SpeechAnalyzerCommandRecognizer {
             throw SpeechAnalyzerRecognitionError.unavailable
         }
 
+#if JARVIS_DISABLE_SPEECH_ANALYZER
+        throw SpeechAnalyzerRecognitionError.unavailable
+#else
         _ = contextualStrings
         startedAt = Date()
         lastTranscriptAt = startedAt
@@ -50,12 +53,14 @@ final class SpeechAnalyzerCommandRecognizer {
                 }
             }
         }
+#endif
     }
 
     func stop() {
         finish(result: .success(nil))
     }
 
+#if !JARVIS_DISABLE_SPEECH_ANALYZER
     @available(macOS 26.0, *)
     private func consume(
         stream: AsyncStream<ModernSpeechSegment>,
@@ -94,6 +99,7 @@ final class SpeechAnalyzerCommandRecognizer {
             await pipeline.stop()
         }
     }
+#endif
 
     private func finishIfSilent() {
         guard !finished else {
@@ -123,9 +129,11 @@ final class SpeechAnalyzerCommandRecognizer {
         silenceTask?.cancel()
         silenceTask = nil
 
+#if !JARVIS_DISABLE_SPEECH_ANALYZER
         if #available(macOS 26.0, *), let pipeline = pipeline as? ModernSpeechAnalyzerPipeline {
             Task { await pipeline.stop() }
         }
+#endif
         pipeline = nil
 
         let continuation = continuation
@@ -139,6 +147,7 @@ final class SpeechAnalyzerCommandRecognizer {
     }
 }
 
+#if !JARVIS_DISABLE_SPEECH_ANALYZER
 @available(macOS 26.0, *)
 struct ModernSpeechSegment: Sendable {
     let text: String
@@ -279,6 +288,7 @@ actor ModernSpeechAnalyzerPipeline {
         }
     }
 }
+#endif
 
 enum SpeechAnalyzerRecognitionError: LocalizedError {
     case unavailable
