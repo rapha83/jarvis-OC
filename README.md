@@ -1,4 +1,4 @@
-# JARVIS Voice
+# JARVIS Voice for OpenClaw
 
 JARVIS Voice is a local-first macOS menu bar voice assistant for OpenClaw. Wake word, overlays, STT, TTS, diagnostics, hotkeys, screen/OCR context and OpenClaw streaming all run in the native Mac app.
 
